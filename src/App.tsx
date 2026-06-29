@@ -1,14 +1,15 @@
-import { Identity } from './components/Identity'
 import { MagicCursor } from './components/MagicCursor'
-import { ThreeScene } from './components/ThreeScene'
+import { HomePage } from './pages/HomePage'
+import { ProjectsPage } from './pages/ProjectsPage'
 import './styles/app.css'
 
 function App() {
+  const isProjectsRoute = window.location.pathname === '/projects'
+
   return (
-    <main className="site-shell">
+    <main className={isProjectsRoute ? 'site-shell site-shell--projects' : 'site-shell'}>
       <MagicCursor />
-      <ThreeScene />
-      <Identity />
+      {isProjectsRoute ? <ProjectsPage /> : <HomePage />}
     </main>
   )
 }

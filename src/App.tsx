@@ -4,7 +4,8 @@ import { ProjectsPage } from './pages/ProjectsPage'
 import './styles/app.css'
 
 function App() {
-  const isProjectsRoute = window.location.pathname === '/projects'
+  const pathname = window.location.pathname.replace(/\/$/, '') || '/'
+  const isProjectsRoute = pathname === '/projects'
 
   return (
     <main className={isProjectsRoute ? 'site-shell site-shell--projects' : 'site-shell'}>

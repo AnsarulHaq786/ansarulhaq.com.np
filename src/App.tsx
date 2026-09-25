@@ -1,16 +1,7 @@
-import { MagicCursor } from './components/MagicCursor'
-import { HomePage } from './pages/HomePage'
-import { ProjectsPage } from './pages/ProjectsPage'
-import './styles/app.css'
-
 function App() {
-  const pathname = window.location.pathname.replace(/\/$/, '') || '/'
-  const isProjectsRoute = pathname === '/projects'
-
   return (
-    <main className={isProjectsRoute ? 'site-shell site-shell--projects' : 'site-shell'}>
-      <MagicCursor />
-      {isProjectsRoute ? <ProjectsPage /> : <HomePage />}
+    <main>
+      
     </main>
   )
 }

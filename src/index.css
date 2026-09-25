@@ -1,25 +1,100 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans:
-  "Geist Variable",
-  ui-sans-serif,
-  system-ui,
-  sans-serif;
+:root {
+  /* Typography */
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+
+  /* Cyan palette */
+  --color-cyan-50: #e6fbff;
+  --color-cyan-200: #9edcff;
+  --color-cyan-400: #00bbff;
+  --color-cyan-600: #0097ce;
+  --color-cyan-700: #00719c;
+  --color-cyan-800: #004a68;
+  --color-cyan-950: #002739;
   
-  --font-mono:
-  "Geist Mono Variable",
-  ui-monospace,
-  "SFMono-Regular",
-  Menlo,
-  Monaco,
-  Consolas,
-  monospace;
+  
+  /* Orange palette */
+  --color-orange-50: #ffd2c6;
+  --color-orange-200: #ff977c;
+  --color-orange-500: #ff4400;
+  --color-orange-600: #c83300;
+  --color-orange-700: #8f2200;
+  --color-orange-800: #561100;
+  --color-orange-950: #230300;
+  
+  /* Neutral palette */
+  --color-neutral-50: #edeff0;
+  --color-neutral-200: #c2c9cc;
+  --color-neutral-400: #9ba3a8;
+  --color-neutral-500: #7b8285;
+  --color-neutral-600: #595f61;
+  --color-neutral-800: #383b3d;
+  --color-neutral-950: #191b1c;
+  
+  /* Semantic application tokens */
+  --color-background: var(--color-neutral-950);
+  --color-surface: var(--color-neutral-800);
+  --color-surface-subtle: color-mix(
+    in srgb,
+    var(--color-neutral-800) 55%,
+    var(--color-background)
+  );
+  
+  --color-foreground: var(--color-neutral-50);
+  --color-muted: var(--color-neutral-200);
+  --color-subtle: var(--color-neutral-400);
+  --color-border: var(--color-neutral-600);
+
+  --color-primary: var(--color-cyan-400);
+  --color-primary-hover: var(--color-cyan-200);
+  --color-primary-active: var(--color-cyan-600);
+  --color-on-primary: var(--color-cyan-950);
+
+  --color-accent: var(--color-orange-500);
+  --color-accent-hover: var(--color-orange-200);
+  --color-accent-active: var(--color-orange-600);
+  --color-on-accent: var(--color-orange-950);
+
+  --color-focus: var(--color-cyan-400);
 }
 
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
   html {
+    min-width: 320px;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    color-scheme: dark;
     font-family: var(--font-sans);
+  }
+  
+  body {
+    min-width: 100svh;
+    margin: 0;
+  }
+  
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+  
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
   }
 }
 

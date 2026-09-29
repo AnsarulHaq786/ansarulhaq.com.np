@@ -9,17 +9,26 @@
     cursor: grabbing;
 }
 
+.hanger_top-rope {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.hanger_vertical-rope {
+    fill: none;
+    stroke: var(--color-neutral-100);
+    stroke-width: 1.5;
+    stroke-linecap: square;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+}
+
 .hanger_svg {
     display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
-}
-
-.hanger_string {
-    fill: none;
-    stroke: var(--color-primary, #00bbff);
-    stroke-width: 2;
-    stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
 }

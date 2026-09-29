@@ -1,19 +1,20 @@
 import { useGSAP } from "@gsap/react";
+import gsap from 'gsap';
 import { useRef, type RefObject } from "react";
 
-import type { HangingWordCofig, PointerMotion } from "./HangingPhysics";
+import type { HangingWordConfig, PointerMotion } from "./hanger.types";
 
 interface HangingWordProps {
-    wordConfig: HangingWordCofig,
+    wordConfig: HangingWordConfig,
     pointerRef: RefObject<PointerMotion>
 }
 
 gsap.registerPlugin(useGSAP);
 
 const RADIANS_TO_DEGREES=180/Math.PI;
-const INTERACTION_RADIUS=230;
-const IMPULSE_STRENTH=0.08;
-const MAX_ANGULAR_IMPULSE=0.38;
+const INTERACTION_RADIUS=80;
+const IMPULSE_STRENGTH=0.1;
+const MAX_ANGULAR_IMPULSE=0.4;
 const MAX_DELTA_TIME=1/30;
 
 function distanceToSegment(
@@ -43,6 +44,9 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
     const wordRef=useRef<SVGGElement>(null);
     const lastPointerSequenceRef=useRef(-1);
     
+    const wordClassName=wordConfig.accent?
+'hanger_word hanger_word--accent': 'hanger_word';
+    
     const physicsRef=useRef({
         anchorX: wordConfig.anchorX,
         anchorY: wordConfig.anchorY,
@@ -68,7 +72,7 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
             
             const rotation=physics.angle*RADIANS_TO_DEGREES;
             
-            gsap.set(ropeRef, {
+            gsap.set(rope, {
                 attr: {
                     x1: physics.anchorX,
                     y1: physics.anchorY,
@@ -77,7 +81,7 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
                 }
             })
             
-            gsap.set(wordRef, {
+            gsap.set(word, {
                 attr: {
                     transform: `translate(${x} ${y}) rotate(${rotation})`
                 }
@@ -109,7 +113,7 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
             
             const tangentialPointerVelocity=pointer.velocityX*tangentX+pointer.velocityY*tangentY;
             
-            const rawImpulse=(tangentialPointerVelocity/physics.ropeLength)*IMPULSE_STRENTH*subtleFalloff;
+            const rawImpulse=(tangentialPointerVelocity/physics.ropeLength)*IMPULSE_STRENGTH*subtleFalloff;
             
             const impulse=gsap.utils.clamp(-MAX_ANGULAR_IMPULSE, MAX_ANGULAR_IMPULSE, rawImpulse);
         
@@ -144,7 +148,7 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
         <g>
             <line ref={ropeRef} className="hanger_vertical-rope" />
             <g ref={wordRef}>
-                <text x="0" y="12" textAnchor="middle" dominantBaseline="hanging">
+                <text className={wordClassName} x="0" y="12" textAnchor="middle" dominantBaseline="hanging">
                     {wordConfig.word}
                 </text>
             </g>

@@ -7,7 +7,7 @@ export interface PointerMotion {
     active: boolean
 }
 
-export interface HangingWordCofig {
+export interface HangingWordConfig {
     id: string,
     word: string,
     

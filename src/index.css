@@ -76,8 +76,8 @@
   }
   
   body {
-    min-width: 100svh;
     margin: 0;
+    padding: 0;
   }
   
   button,

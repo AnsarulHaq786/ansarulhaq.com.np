@@ -2,11 +2,11 @@ import { useGSAP } from "@gsap/react";
 import gsap from 'gsap';
 import { useRef, type RefObject } from "react";
 
-import type { HangingWordConfig, PointerMotion } from "./hanger.types";
-
+import type { HangingWordConfig, PointerMotion, TopRopeState } from "./hanger.types";
 interface HangingWordProps {
     wordConfig: HangingWordConfig,
-    pointerRef: RefObject<PointerMotion>
+    pointerRef: RefObject<PointerMotion>,
+    topRopeRef: RefObject<TopRopeState>
 }
 
 gsap.registerPlugin(useGSAP);
@@ -16,6 +16,15 @@ const INTERACTION_RADIUS=80;
 const IMPULSE_STRENGTH=0.1;
 const MAX_ANGULAR_IMPULSE=0.4;
 const MAX_DELTA_TIME=1/30;
+
+function getQuadraticBezierPoint(rope: TopRopeState, t: number) {
+    const inverseT=1-t;
+    
+    return {
+        x: inverseT**2*rope.startX+2*inverseT*t*rope.controlX+t**2*rope.endX,
+        y: inverseT**2*rope.startY+2*inverseT*t*rope.controlY+t**2*rope.endY,
+    }
+}
 
 function distanceToSegment(
     pointX: number,
@@ -39,13 +48,10 @@ function distanceToSegment(
     return Math.hypot(pointX-closestX, pointY-closestY);
 }
 
-function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
+function HangingWord({ wordConfig, pointerRef, topRopeRef }: HangingWordProps) {
     const ropeRef=useRef<SVGLineElement>(null);
     const wordRef=useRef<SVGGElement>(null);
     const lastPointerSequenceRef=useRef(-1);
-    
-    const wordClassName=wordConfig.accent?
-'hanger_word hanger_word--accent': 'hanger_word';
     
     const physicsRef=useRef({
         anchorX: wordConfig.anchorX,
@@ -59,37 +65,26 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
     })
     
     useGSAP(() => {
-        const rope=ropeRef.current;
-        const word=wordRef.current;
+        const ropeElement=ropeRef.current;
+        const wordElement=wordRef.current;
         
-        if(!rope || !word) return;
+        if(!ropeElement || !wordElement) return;
         
         const physics=physicsRef.current;
         
-        function render() {
-            const x=physics.anchorX+Math.sin(physics.angle)*physics.ropeLength;
-            const y=physics.anchorY+Math.cos(physics.angle)*physics.ropeLength;
-            
-            const rotation=physics.angle*RADIANS_TO_DEGREES;
-            
-            gsap.set(rope, {
-                attr: {
-                    x1: physics.anchorX,
-                    y1: physics.anchorY,
-                    x2: x,
-                    y2: y
-                }
-            })
-            
-            gsap.set(word, {
-                attr: {
-                    transform: `translate(${x} ${y}) rotate(${rotation})`
-                }
-            })
-            
-            return {x, y};
+        function updateAnchor() {
+            const anchor=getQuadraticBezierPoint(topRopeRef.current, wordConfig.anchorT);
+            physics.anchorX=anchor.x;
+            physics.anchorY=anchor.y;
         }
         
+        function getWordPosition() {
+            return {
+                x: physics.anchorX+Math.sin(physics.angle)*physics.ropeLength,
+                y: physics.anchorY+Math.cos(physics.angle)*physics.ropeLength
+            }
+        }
+       
         function applyPointerImpulse(wordX: number, wordY: number) {
             const pointer=pointerRef.current;
             
@@ -120,30 +115,58 @@ function HangingWord({ wordConfig, pointerRef }: HangingWordProps) {
             physics.angularVelocity+=impulse;
         }
         
+        function render(wordX: number, wordY: number) {
+            const rotation=physics.angle*RADIANS_TO_DEGREES;
+            
+            gsap.set(ropeElement, {
+                attr: {
+                    x1: physics.anchorX,
+                    y1: physics.anchorY,
+                    x2: wordX,
+                    y2: wordY 
+                }
+            })
+            
+            gsap.set(wordElement, {
+                attr: {
+                    transform: `translate(${wordX} ${wordY}) rotate(${rotation})`
+                }
+            })
+        }
+        
         function update(_time: number, deltaTimeMilliseconds: number) {
             const deltaTime=Math.min(deltaTimeMilliseconds/1000, MAX_DELTA_TIME);
+            
+            updateAnchor();
+            
+            const currentPosition=getWordPosition();
+            
+            applyPointerImpulse(currentPosition.x, currentPosition.y);
             
             const angularAcceleration=-(physics.gravity/physics.ropeLength)*Math.sin(physics.angle-physics.restingAngle);
             
             physics.angularVelocity+=angularAcceleration*deltaTime;
-            
-            const frameIndependentDamping=Math.pow(physics.damping, deltaTime*60);
-            
-            physics.angularVelocity*=frameIndependentDamping;
+                        
             physics.angle+=physics.angularVelocity*deltaTime;
             
-            const position=render();
-            applyPointerImpulse(position.x, position.y);
+            const nextPostion=getWordPosition();
+            
+            render(nextPostion.x, nextPostion.y);
         }
         
-        render();
+        updateAnchor();
+        const initialPosition=getWordPosition();
+        render(initialPosition.x, initialPosition.y);
+        
         gsap.ticker.add(update);
         
         return()=>{
             gsap.ticker.remove(update);
         }
-    }, { scope: wordRef })
-    
+    }, { scope: wordRef, dependencies: [pointerRef, topRopeRef, wordConfig.anchorT] })
+   
+    const wordClassName=wordConfig.accent? 'hanger_word hanger_word--accent': 'hanger_word';
+
     return (
         <g>
             <line ref={ropeRef} className="hanger_vertical-rope" />

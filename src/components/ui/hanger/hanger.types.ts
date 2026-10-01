@@ -6,6 +6,14 @@ export interface PointerMotion {
     sequence: number,
     active: boolean
 }
+export interface TopRopeState {
+    startX: number,
+    startY: number,
+    controlX: number,
+    controlY: number,
+    endX: number,
+    endY: number
+}
 
 export interface HangingWordConfig {
     id: string,
@@ -13,6 +21,7 @@ export interface HangingWordConfig {
     
     anchorX: number,
     anchorY: number,
+    anchorT: number,
     ropeLength: number,
     
     angle: number,

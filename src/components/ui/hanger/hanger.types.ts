@@ -18,17 +18,13 @@ export interface TopRopeState {
 export interface HangingWordConfig {
     id: string,
     word: string,
-    
-    anchorX: number,
-    anchorY: number,
     anchorT: number,
     ropeLength: number,
-    
+    attachmentX: number,
+    attachmentY?: number,
     angle: number,
     angularVelocity: number,
     damping: number,
     gravity: number,
-    restingAngle: number,
-    
     accent?: boolean
 }

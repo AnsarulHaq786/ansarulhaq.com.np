@@ -42,9 +42,13 @@ function distanceToSegment(
     const segmentX=endX-startX;
     const segmentY=endY-startY;
     
-    const segmentLenghSquared=segmentX**2+segmentY**2;
+    const segmentLengthSquared=segmentX**2+segmentY**2;
     
-    const projection=((pointX-startX)*segmentX+(pointY-startY)*segmentY)/segmentLenghSquared;
+    if (segmentLengthSquared === 0) {
+        return Math.hypot(pointX - startX, pointY - startY);
+    }
+    
+    const projection=((pointX-startX)*segmentX+(pointY-startY)*segmentY)/segmentLengthSquared;
     
     const projectionFactor=gsap.utils.clamp(0, 1, projection);
     const closestX=startX+segmentX*projectionFactor;
@@ -126,7 +130,7 @@ function HangingWord({ wordConfig, pointerRef, topRopeRef }: HangingWordProps) {
             
             return {
                 x: attachmentXPosition+physics.comOffsetX*cosine-physics.comOffsetY*sine,
-                y: attachmentYPosition+physics.comOffsetY*sine+physics.comOffsetY*cosine
+                y: attachmentYPosition+physics.comOffsetX*sine+physics.comOffsetY*cosine
             }
         }
        
@@ -155,7 +159,7 @@ function HangingWord({ wordConfig, pointerRef, topRopeRef }: HangingWordProps) {
                 physics.ropeAngularVelocity+=ropeImpulse;
             }
             
-            if(distanceToBody<INTERACTION_RADIUS) {
+            if(distanceToBody<physics.bodyInteractionRadius) {
                 const falloff=(1-distanceToBody/physics.bodyInteractionRadius)**2;
                 const leverX=pointer.x-centerX;
                 const leverY=pointer.y-centerY;
@@ -179,7 +183,7 @@ function HangingWord({ wordConfig, pointerRef, topRopeRef }: HangingWordProps) {
             gsap.set(bodyElement, {
                 attr: {
                     transform:
-                        `translate(${attachmentXPosition} ${attachmentYPosition})`+
+                        `translate(${attachmentXPosition} ${attachmentYPosition}) `+
                         `rotate(${physics.bodyAngle*RADIANS_TO_DEGREES})`
                 }
             })
